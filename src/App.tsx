@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DocumentFile, Envelope, SignatureSettings, Signer, SignatureStamp, AuditLog, SigningMode } from './types';
-import { calculateSha256, createSampleDocumentBundle } from './utils/pdfHelper';
+import { calculateSha256 } from './utils/pdfHelper';
 import { HeaderNavigation } from './components/HeaderNavigation';
 import { BatchUploadSection } from './components/BatchUploadSection';
 import { DocumentViewer } from './components/DocumentViewer';
@@ -154,45 +154,13 @@ export default function App() {
             return;
           }
         } catch {
-          // fall through to sample data
+          // fall through
         }
       }
 
-      const sampleFiles = await createSampleDocumentBundle();
-      setFiles(sampleFiles);
-
-      const hash = await calculateSha256(`envelope-${Date.now()}-${sampleFiles.length}`);
-      setSha256Hash(hash);
+      // No saved data — start with a clean state (no sample/test files)
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
       setShareCode(code);
-
-      const initialEnvelope: Envelope = {
-        id: `env-${Date.now()}`,
-        title: 'Pacote de Contratos & Termos de Serviço',
-        senderName: 'Luiz Cláudio da Silva',
-        senderEmail: 'luizclaudiodasilvabezerra@gmail.com',
-        senderPhone: '+55 (11) 98765-4321',
-        createdAt: new Date().toLocaleDateString('pt-BR'),
-        updatedAt: new Date().toLocaleDateString('pt-BR'),
-        status: 'draft',
-        files: sampleFiles,
-        signers: signers,
-        auditLogs: [
-          {
-            id: 'log-init',
-            timestamp: new Date().toLocaleString('pt-BR'),
-            action: 'Envio em Lote Registrado',
-            actor: 'Luiz Cláudio da Silva',
-            details: 'Pacote com 2 documentos (3 páginas) preparado para assinatura.',
-            hash: hash.substring(0, 16),
-          },
-        ],
-        sha256Hash: hash,
-        shareCode: code,
-      };
-
-      setEnvelopesHistory([initialEnvelope]);
-      setCurrentEnvelopeId(initialEnvelope.id);
     }
     init();
   }, []);
@@ -387,9 +355,14 @@ export default function App() {
       setActivePageIndex(0);
     }
 
-    // Sync deletion to envelopesHistory so it persists across all entities
+    // Sync deletion to envelopesHistory — clear envelope state when last file is removed
     setEnvelopesHistory((prevEnvs) => {
       if (updated.length === 0) {
+        // Reset envelope state for a clean start
+        setEnvelopeTitle('Novo Envelope de Documentos');
+        setCurrentEnvelopeId(`env-${Date.now()}`);
+        setShareCode(Math.random().toString(36).substring(2, 8).toUpperCase());
+        setIsEnvelopeSaved(false);
         return prevEnvs.filter((env) => env.id !== currentEnvelopeId);
       }
       return prevEnvs.map((env) =>
@@ -779,47 +752,50 @@ export default function App() {
                     {files.map((file, idx) => {
                       const isFileSigned = file.pages.every((p) => p.stamps.length > 0);
                       return (
-                        <button
+                        <div
                           key={file.id}
-                          onClick={() => {
-                            setActiveFileIndex(idx);
-                            setActivePageIndex(0);
-                          }}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 transition ${
+                          className={`flex items-center rounded-xl shrink-0 overflow-hidden transition ${
                             activeFileIndex === idx
-                              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                              : 'bg-slate-850 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/80'
+                              ? 'bg-emerald-500 shadow-md shadow-emerald-500/20'
+                              : 'bg-slate-850 border border-slate-700/80'
                           }`}
                         >
-                          <FileText className="w-3.5 h-3.5" />
-                          <span className="truncate max-w-[130px] sm:max-w-[180px]">{file.name}</span>
-                          <span
-                            className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                          <button
+                            onClick={() => {
+                              setActiveFileIndex(idx);
+                              setActivePageIndex(0);
+                            }}
+                            className={`px-3 py-2 text-xs font-bold flex items-center gap-2 transition ${
                               activeFileIndex === idx
-                                ? 'bg-slate-900 text-emerald-300'
-                                : 'bg-slate-800 text-slate-400'
+                                ? 'text-slate-950'
+                                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                             }`}
                           >
-                            {file.pageCount}p
-                          </span>
-                          {isFileSigned && <span className="text-[10px]">✓</span>}
-                          <span
-                            role="button"
-                            tabIndex={0}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveFile(file.id);
-                            }}
-                            className={`ml-0.5 p-0.5 rounded-md transition ${
+                            <FileText className="w-3.5 h-3.5" />
+                            <span className="truncate max-w-[130px] sm:max-w-[180px]">{file.name}</span>
+                            <span
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                                activeFileIndex === idx
+                                  ? 'bg-slate-900 text-emerald-300'
+                                  : 'bg-slate-800 text-slate-400'
+                              }`}
+                            >
+                              {file.pageCount}p
+                            </span>
+                            {isFileSigned && <span className="text-[10px]">✓</span>}
+                          </button>
+                          <button
+                            onClick={() => handleRemoveFile(file.id)}
+                            className={`px-2 py-2 transition ${
                               activeFileIndex === idx
-                                ? 'hover:bg-red-500/20 text-slate-700 hover:text-red-600'
-                                : 'hover:bg-red-500/20 text-slate-400 hover:text-red-400'
+                                ? 'text-slate-700 hover:text-red-600 hover:bg-red-500/20'
+                                : 'text-slate-400 hover:text-red-400 hover:bg-red-500/20'
                             }`}
                             title="Excluir documento"
                           >
                             <X className="w-3.5 h-3.5" />
-                          </span>
-                        </button>
+                          </button>
+                        </div>
                       );
                     })}
                   </div>
