@@ -740,7 +740,7 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 flex flex-col p-3 sm:p-5 max-w-7xl mx-auto w-full">
         <div
-          className={`w-full mx-auto transition-all ${
+          className={`w-full mx-auto transition-all cq-container ${
             isMobileSimulator
               ? 'max-w-md border-8 border-slate-800 rounded-[40px] p-2 bg-slate-900 shadow-2xl my-2'
               : ''
@@ -836,9 +836,9 @@ export default function App() {
 
               {/* Central Layout: Viewer + Actions Toolbar */}
               {files.length > 0 && currentFile ? (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start cq-stack-grid">
                   {/* Left / Center: Interactive Multi-Page Document Canvas */}
-                  <div className="lg:col-span-8 h-[68vh] min-h-[500px]">
+                  <div className="lg:col-span-8 h-[50vh] min-h-[300px] lg:h-[68vh] lg:min-h-[500px] cq-stack-col cq-viewer-height">
                     <DocumentViewer
                       currentFile={currentFile}
                       currentPageIndex={activePageIndex}
@@ -855,7 +855,7 @@ export default function App() {
                   </div>
 
                   {/* Right / Bottom: 1-Click Batch Signing & Settings */}
-                  <div className="lg:col-span-4 space-y-4">
+                  <div className="lg:col-span-4 space-y-4 cq-stack-col">
                     <BatchSigningToolbar
                       totalFiles={files.length}
                       totalPages={totalPages}

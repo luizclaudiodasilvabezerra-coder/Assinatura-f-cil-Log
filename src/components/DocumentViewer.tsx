@@ -129,10 +129,10 @@ export function DocumentViewer({
                 className="absolute inset-0 w-full h-full object-contain"
               />
             ) : currentFile.fileType === 'application/pdf' ? (
-              <embed
+              <iframe
                 src={currentFile.fileDataUrl}
-                type="application/pdf"
-                className="absolute inset-0 w-full h-full"
+                title={currentFile.name}
+                className="absolute inset-0 w-full h-full border-0"
               />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">

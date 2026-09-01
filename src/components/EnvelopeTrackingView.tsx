@@ -62,7 +62,7 @@ export function EnvelopeTrackingView({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 cq-stack-grid">
           {envelopes.map((env) => {
             const totalPages = env.files.reduce((acc, f) => acc + f.pageCount, 0);
             const signedPages = env.files.reduce(

@@ -24,3 +24,21 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Container queries for mobile simulator — stack grids when container is narrow */
+.cq-container {
+  container-type: inline-size;
+}
+
+@container (max-width: 500px) {
+  .cq-stack-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .cq-stack-col {
+    grid-column: auto !important;
+  }
+  .cq-viewer-height {
+    height: 50vh !important;
+    min-height: 300px !important;
+  }
+}
