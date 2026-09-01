@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DocumentFile, Envelope, SignatureSettings, Signer, SignatureStamp, AuditLog, SigningMode } from './types';
-import { calculateSha256 } from './utils/pdfHelper';
+import { calculateSha256, encodeEnvelopeForLink, decodeEnvelopeFromLink } from './utils/pdfHelper';
 import { HeaderNavigation } from './components/HeaderNavigation';
 import { BatchUploadSection } from './components/BatchUploadSection';
 import { DocumentViewer } from './components/DocumentViewer';
@@ -97,6 +97,30 @@ export default function App() {
     const match = path.match(/^\/sign\/([A-Za-z0-9]+)/);
     if (match) {
       const code = match[1];
+
+      // Priority 1: decode envelope data from URL hash (works across devices)
+      const hashMatch = window.location.hash.match(/^#data=(.+)$/);
+      if (hashMatch) {
+        const env = decodeEnvelopeFromLink(hashMatch[1]);
+        if (env) {
+          setEnvelopesHistory([env]);
+          setCurrentEnvelopeId(env.id);
+          setEnvelopeTitle(env.title);
+          setFiles(env.files);
+          setShareCode(env.shareCode);
+          setSha256Hash(env.sha256Hash);
+          if (env.signers && env.signers.length > 0) {
+            setSigners(env.signers);
+          }
+          setActiveFileIndex(0);
+          setActivePageIndex(0);
+          setIsEnvelopeSaved(true);
+          setActiveView('sign');
+          return;
+        }
+      }
+
+      // Priority 2: look up envelope in localStorage (same device)
       const saved = localStorage.getItem('afl_envelopes');
       if (saved) {
         try {
@@ -659,7 +683,9 @@ export default function App() {
     setIsSendLinkModalOpen(false);
     setSendLinkEnvelope(null);
     // Follow the current flow: go to sign view
-    const signingLink = `${window.location.origin}/sign/${shareCode}`;
+    const env = getCurrentEnvelope();
+    const encoded = encodeEnvelopeForLink(env);
+    const signingLink = `${window.location.origin}/sign/${shareCode}#data=${encoded}`;
     setSaveToastMessage(`Envelope preparado para assinatura! Link mobile: ${signingLink}`);
     setTimeout(() => setSaveToastMessage(null), 6000);
     setActiveView('sign');

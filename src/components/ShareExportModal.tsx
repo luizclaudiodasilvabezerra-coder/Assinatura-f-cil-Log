@@ -1,4 +1,5 @@
 import { Envelope, Signer, SignatureSettings } from '../types';
+import { encodeEnvelopeForLink } from '../utils/pdfHelper';
 import { X, Send, Download, Copy, Check, MessageCircle, Mail, Link2, FileText } from 'lucide-react';
 import { useState } from 'react';
 
@@ -19,7 +20,8 @@ export function ShareExportModal({
   const [copied, setCopied] = useState(false);
   if (!isOpen) return null;
 
-  const signingUrl = `${window.location.origin}/sign/${envelope.shareCode}`;
+  const encoded = encodeEnvelopeForLink(envelope);
+  const signingUrl = `${window.location.origin}/sign/${envelope.shareCode}#data=${encoded}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(signingUrl).catch(() => {});

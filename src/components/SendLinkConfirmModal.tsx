@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, MessageCircle, Mail, Send, HelpCircle } from 'lucide-react';
 import { Envelope, Signer } from '../types';
+import { encodeEnvelopeForLink } from '../utils/pdfHelper';
 
 interface SendLinkConfirmModalProps {
   isOpen: boolean;
@@ -21,7 +22,8 @@ export function SendLinkConfirmModal({
 
   if (!isOpen) return null;
 
-  const signingUrl = `${window.location.origin}/sign/${envelope.shareCode}`;
+  const encoded = encodeEnvelopeForLink(envelope);
+  const signingUrl = `${window.location.origin}/sign/${envelope.shareCode}#data=${encoded}`;
 
   const handleClose = () => {
     setStep('confirm');

@@ -1,4 +1,5 @@
 import { Envelope } from '../types';
+import { encodeEnvelopeForLink } from '../utils/pdfHelper';
 import { FileText, Plus, Send, Award, Trash2, Mail, CheckCircle2, Clock, ChevronRight, Link2, Copy } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,7 +25,8 @@ export function EnvelopeTrackingView({
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopyLink = (env: Envelope) => {
-    const link = `${window.location.origin}/sign/${env.shareCode}`;
+    const encoded = encodeEnvelopeForLink(env);
+    const link = `${window.location.origin}/sign/${env.shareCode}#data=${encoded}`;
     navigator.clipboard.writeText(link).catch(() => {});
     setCopiedId(env.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -100,7 +102,7 @@ export function EnvelopeTrackingView({
                           className="text-[10px] text-sky-400 hover:text-sky-300 font-mono truncate flex-1 text-left transition underline-offset-2 hover:underline"
                           title="Abrir envelope para assinatura"
                         >
-                          {window.location.host}/sign/{env.shareCode}
+                          {window.location.host}/sign/{env.shareCode}#data
                         </button>
                         <button
                           onClick={() => handleCopyLink(env)}

@@ -1,4 +1,30 @@
-import { DocumentFile } from '../types';
+import { DocumentFile, Envelope } from '../types';
+
+// Encode envelope data into a URL-safe base64 string (strips large fileDataUrl to keep URL manageable)
+export function encodeEnvelopeForLink(env: Envelope): string {
+  const stripped: Envelope = {
+    ...env,
+    files: env.files.map((f) => ({ ...f, fileDataUrl: undefined, thumbnailUrl: undefined })),
+  };
+  const json = JSON.stringify(stripped);
+  // Handle Unicode: encode to UTF-8 then base64
+  const bytes = new TextEncoder().encode(json);
+  let binary = '';
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  return btoa(binary);
+}
+
+// Decode envelope data from a base64 string
+export function decodeEnvelopeFromLink(encoded: string): Envelope | null {
+  try {
+    const binary = atob(encoded);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    const json = new TextDecoder().decode(bytes);
+    return JSON.parse(json) as Envelope;
+  } catch {
+    return null;
+  }
+}
 
 export async function calculateSha256(input: string): Promise<string> {
   const encoder = new TextEncoder();
