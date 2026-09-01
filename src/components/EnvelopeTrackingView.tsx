@@ -24,7 +24,7 @@ export function EnvelopeTrackingView({
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopyLink = (env: Envelope) => {
-    const link = `https://assinatura.logmam.com.br/sign/${env.shareCode}`;
+    const link = `${window.location.origin}/sign/${env.shareCode}`;
     navigator.clipboard.writeText(link).catch(() => {});
     setCopiedId(env.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -96,7 +96,7 @@ export function EnvelopeTrackingView({
                       <div className="mt-2 flex items-center gap-2 bg-slate-950 border border-sky-500/20 rounded-lg p-2">
                         <Link2 className="w-3 h-3 text-sky-400 shrink-0" />
                         <span className="text-[10px] text-slate-400 font-mono truncate flex-1">
-                          assinatura.logmam.com.br/sign/{env.shareCode}
+                          {window.location.host}/sign/{env.shareCode}
                         </span>
                         <button
                           onClick={() => handleCopyLink(env)}

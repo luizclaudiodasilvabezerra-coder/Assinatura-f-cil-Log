@@ -21,7 +21,7 @@ export function SendLinkConfirmModal({
 
   if (!isOpen) return null;
 
-  const signingUrl = `https://assinatura.logmam.com.br/sign/${envelope.shareCode}`;
+  const signingUrl = `${window.location.origin}/sign/${envelope.shareCode}`;
 
   const handleClose = () => {
     setStep('confirm');

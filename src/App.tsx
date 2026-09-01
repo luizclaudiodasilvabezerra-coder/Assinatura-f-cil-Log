@@ -91,9 +91,48 @@ export default function App() {
     },
   ]);
 
+  // Detect /sign/:shareCode route on load — open envelope for mobile signing
+  useEffect(() => {
+    const path = window.location.pathname;
+    const match = path.match(/^\/sign\/([A-Za-z0-9]+)/);
+    if (match) {
+      const code = match[1];
+      const saved = localStorage.getItem('afl_envelopes');
+      if (saved) {
+        try {
+          const parsed: Envelope[] = JSON.parse(saved);
+          const env = parsed.find((e) => e.shareCode === code);
+          if (env) {
+            setCurrentEnvelopeId(env.id);
+            setEnvelopeTitle(env.title);
+            setFiles(env.files);
+            setShareCode(env.shareCode);
+            setSha256Hash(env.sha256Hash);
+            if (env.signers && env.signers.length > 0) {
+              setSigners(env.signers);
+            }
+            setActiveFileIndex(0);
+            setActivePageIndex(0);
+            setIsEnvelopeSaved(true);
+            setActiveView('sign');
+            return;
+          }
+        } catch {
+          // fall through
+        }
+      }
+    }
+  }, []);
+
   // Load saved envelopes from localStorage or create sample data on startup
   useEffect(() => {
     async function init() {
+      // Skip sample data init if we're on a /sign/:shareCode route
+      const path = window.location.pathname;
+      if (path.match(/^\/sign\/[A-Za-z0-9]+/)) {
+        return;
+      }
+
       const saved = localStorage.getItem('afl_envelopes');
       if (saved) {
         try {
@@ -160,7 +199,11 @@ export default function App() {
   // Persist envelopes history to localStorage whenever it changes
   useEffect(() => {
     if (envelopesHistory.length > 0) {
-      localStorage.setItem('afl_envelopes', JSON.stringify(envelopesHistory));
+      try {
+        localStorage.setItem('afl_envelopes', JSON.stringify(envelopesHistory));
+      } catch (e) {
+        console.warn('localStorage cheio — arquivos grandes podem não persistir entre sessões');
+      }
     } else {
       localStorage.removeItem('afl_envelopes');
     }
@@ -628,7 +671,7 @@ export default function App() {
     setIsSendLinkModalOpen(false);
     setSendLinkEnvelope(null);
     // Follow the current flow: go to sign view
-    const signingLink = `https://assinatura.logmam.com.br/sign/${shareCode}`;
+    const signingLink = `${window.location.origin}/sign/${shareCode}`;
     setSaveToastMessage(`Envelope preparado para assinatura! Link mobile: ${signingLink}`);
     setTimeout(() => setSaveToastMessage(null), 6000);
     setActiveView('sign');

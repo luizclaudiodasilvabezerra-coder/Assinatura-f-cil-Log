@@ -19,7 +19,7 @@ export function ShareExportModal({
   const [copied, setCopied] = useState(false);
   if (!isOpen) return null;
 
-  const signingUrl = `https://assinatura.logmam.com.br/sign/${envelope.shareCode}`;
+  const signingUrl = `${window.location.origin}/sign/${envelope.shareCode}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(signingUrl).catch(() => {});
