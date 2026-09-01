@@ -12,7 +12,7 @@ import { SendToRecipientModal } from './components/SendToRecipientModal';
 import { SaveEnvelopeModal } from './components/SaveEnvelopeModal';
 import { AuditCertificateModal } from './components/AuditCertificateModal';
 import { EnvelopeTrackingView } from './components/EnvelopeTrackingView';
-import { FileText, Send, Check, Layers } from 'lucide-react';
+import { FileText, Send, Check, Layers, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function App() {
@@ -712,6 +712,22 @@ export default function App() {
                             {file.pageCount}p
                           </span>
                           {isFileSigned && <span className="text-[10px]">✓</span>}
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveFile(file.id);
+                            }}
+                            className={`ml-0.5 p-0.5 rounded-md transition ${
+                              activeFileIndex === idx
+                                ? 'hover:bg-red-500/20 text-slate-700 hover:text-red-600'
+                                : 'hover:bg-red-500/20 text-slate-400 hover:text-red-400'
+                            }`}
+                            title="Excluir documento"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </span>
                         </button>
                       );
                     })}
