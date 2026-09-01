@@ -1,5 +1,6 @@
 import { Envelope } from '../types';
-import { FileText, Plus, Send, Award, Trash2, Mail, CheckCircle2, Clock, ChevronRight } from 'lucide-react';
+import { FileText, Plus, Send, Award, Trash2, Mail, CheckCircle2, Clock, ChevronRight, Link2, Copy } from 'lucide-react';
+import { useState } from 'react';
 
 interface EnvelopeTrackingViewProps {
   envelopes: Envelope[];
@@ -18,6 +19,15 @@ export function EnvelopeTrackingView({
   onOpenAuditModal,
   onDeleteEnvelope,
 }: EnvelopeTrackingViewProps) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyLink = (env: Envelope) => {
+    const link = `https://assinatura.logmam.com.br/sign/${env.shareCode}`;
+    navigator.clipboard.writeText(link).catch(() => {});
+    setCopiedId(env.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -69,13 +79,32 @@ export function EnvelopeTrackingView({
                     <h3 className="text-sm font-bold text-white truncate">{env.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 ${
-                        isSigned ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
+                        isSigned ? 'bg-emerald-500/15 text-emerald-400'
+                          : env.status === 'sent' ? 'bg-sky-500/15 text-sky-400'
+                          : 'bg-amber-500/15 text-amber-400'
                       }`}>
                         {isSigned ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                        {isSigned ? 'Assinado' : 'Rascunho'}
+                        {isSigned ? 'Assinado' : env.status === 'sent' ? 'Enviado' : 'Rascunho'}
                       </span>
                       <span className="text-[10px] text-slate-500 font-mono">{env.shareCode}</span>
                     </div>
+
+                    {/* Mobile signing link for sent envelopes */}
+                    {env.status === 'sent' && !isSigned && (
+                      <div className="mt-2 flex items-center gap-2 bg-slate-950 border border-sky-500/20 rounded-lg p-2">
+                        <Link2 className="w-3 h-3 text-sky-400 shrink-0" />
+                        <span className="text-[10px] text-slate-400 font-mono truncate flex-1">
+                          assinatura.logmam.com.br/sign/{env.shareCode}
+                        </span>
+                        <button
+                          onClick={() => handleCopyLink(env)}
+                          className="p-1 text-slate-400 hover:text-sky-400 rounded transition shrink-0"
+                          title="Copiar link de assinatura"
+                        >
+                          {copiedId === env.id ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={() => onDeleteEnvelope(env.id)}

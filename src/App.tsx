@@ -97,7 +97,9 @@ export default function App() {
           const parsed: Envelope[] = JSON.parse(saved);
           if (parsed.length > 0) {
             setEnvelopesHistory(parsed);
-            const first = parsed[0];
+            const savedEnvId = localStorage.getItem('afl_current_envelope_id');
+            const target = savedEnvId ? parsed.find((e) => e.id === savedEnvId) : null;
+            const first = target || parsed[0];
             setCurrentEnvelopeId(first.id);
             setEnvelopeTitle(first.title);
             setFiles(first.files);
@@ -160,6 +162,11 @@ export default function App() {
       localStorage.removeItem('afl_envelopes');
     }
   }, [envelopesHistory]);
+
+  // Persist current envelope ID so reloads restore the correct envelope
+  useEffect(() => {
+    localStorage.setItem('afl_current_envelope_id', currentEnvelopeId);
+  }, [currentEnvelopeId]);
 
   const activeSigner = signers[activeSignerIndex] || signers[0];
   const currentFile = files[activeFileIndex] || files[0];
@@ -309,7 +316,7 @@ export default function App() {
     }
   };
 
-  // Remove individual file from envelope and sync
+  // Remove individual file from envelope and sync across all entities
   const handleRemoveFile = (fileId: string) => {
     const updated = files.filter((f) => f.id !== fileId);
     setFiles(updated);
@@ -319,18 +326,17 @@ export default function App() {
       setActivePageIndex(0);
     }
 
-    // If no files left in this envelope, remove envelope from tracking history
-    if (updated.length === 0) {
-      setEnvelopesHistory((prev) => prev.filter((env) => env.id !== currentEnvelopeId));
-    } else {
-      setEnvelopesHistory((prev) =>
-        prev.map((env) =>
-          env.id === currentEnvelopeId
-            ? { ...env, files: updated, updatedAt: new Date().toLocaleString('pt-BR') }
-            : env
-        )
+    // Sync deletion to envelopesHistory so it persists across all entities
+    setEnvelopesHistory((prevEnvs) => {
+      if (updated.length === 0) {
+        return prevEnvs.filter((env) => env.id !== currentEnvelopeId);
+      }
+      return prevEnvs.map((env) =>
+        env.id === currentEnvelopeId
+          ? { ...env, files: updated, updatedAt: new Date().toLocaleString('pt-BR') }
+          : env
       );
-    }
+    });
   };
 
   // Delete entire envelope from Stage 3 Tracking
@@ -654,17 +660,22 @@ export default function App() {
               onUpdateSigners={setSigners}
               onRemoveSigner={handleRemoveSigner}
               onProceedToSign={() => {
-                // Ensure current envelope is saved in history before opening recipient modal
+                // Save envelope to history and prepare for signing — no modal
                 const env = getCurrentEnvelope();
                 setEnvelopesHistory((prev) => {
                   const exists = prev.some((e) => e.id === env.id);
                   if (exists) {
-                    return prev.map((e) => (e.id === env.id ? env : e));
+                    return prev.map((e) => (e.id === env.id ? { ...e, ...env, status: 'sent' as const } : e));
                   }
-                  return [env, ...prev];
+                  return [{ ...env, status: 'sent' as const }, ...prev];
                 });
-                // Opens Recipient Selection Modal for WhatsApp / Email dispatch with envelope choice
-                setIsSendRecipientModalOpen(true);
+                setIsEnvelopeSaved(true);
+                // Generate mobile signing link and show toast
+                const signingLink = `https://assinatura.logmam.com.br/sign/${shareCode}`;
+                setSaveToastMessage(`Envelope preparado para assinatura! Link mobile: ${signingLink}`);
+                setTimeout(() => setSaveToastMessage(null), 6000);
+                // Go directly to the signing view
+                setActiveView('sign');
               }}
               envelopeTitle={envelopeTitle}
               onUpdateTitle={setEnvelopeTitle}
