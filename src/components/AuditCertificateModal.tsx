@@ -70,7 +70,7 @@ export function AuditCertificateModal({
                     {signer.status === 'signed' ? '✓ Assinado' : 'Pendente'}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500">{signer.role} • CPF: {signer.cpf}</div>
+                <div className="text-[10px] text-slate-500">{signer.role}</div>
                 <div className="text-[10px] text-slate-500">{signer.email}</div>
                 {signer.signedAt && (
                   <div className="flex items-center gap-1 text-[10px] text-slate-400">

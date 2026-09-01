@@ -205,13 +205,7 @@ export function BatchUploadSection({
                 placeholder="WhatsApp"
                 className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
               />
-              <input
-                type="text"
-                value={signer.cpf}
-                onChange={(e) => updateSigner(idx, 'cpf', e.target.value)}
-                placeholder="CPF"
-                className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none col-span-2"
-              />
+
             </div>
           </div>
         ))}

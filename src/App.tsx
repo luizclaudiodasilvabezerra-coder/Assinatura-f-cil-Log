@@ -103,6 +103,7 @@ export default function App() {
           const parsed: Envelope[] = JSON.parse(saved);
           const env = parsed.find((e) => e.shareCode === code);
           if (env) {
+            setEnvelopesHistory(parsed);
             setCurrentEnvelopeId(env.id);
             setEnvelopeTitle(env.title);
             setFiles(env.files);
@@ -213,6 +214,20 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('afl_current_envelope_id', currentEnvelopeId);
   }, [currentEnvelopeId]);
+
+  // Auto-save signers to current envelope in history when they change
+  useEffect(() => {
+    setEnvelopesHistory((prev) => {
+      if (prev.length === 0) return prev;
+      const exists = prev.some((e) => e.id === currentEnvelopeId);
+      if (!exists) return prev;
+      return prev.map((env) =>
+        env.id === currentEnvelopeId
+          ? { ...env, signers, updatedAt: new Date().toLocaleString('pt-BR') }
+          : env
+      );
+    });
+  }, [signers]);
 
   const activeSigner = signers[activeSignerIndex] || signers[0];
   const currentFile = files[activeFileIndex] || files[0];

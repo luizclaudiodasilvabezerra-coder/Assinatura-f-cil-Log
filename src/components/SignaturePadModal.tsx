@@ -187,22 +187,13 @@ export function SignaturePadModal({
           </div>
 
           {/* Signer Info */}
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="text"
-              value={signerName}
-              onChange={(e) => setSignerName(e.target.value)}
-              placeholder="Nome do signatário"
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            />
-            <input
-              type="text"
-              value={signerCpf}
-              onChange={(e) => setSignerCpf(e.target.value)}
-              placeholder="CPF"
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
+          <input
+            type="text"
+            value={signerName}
+            onChange={(e) => setSignerName(e.target.value)}
+            placeholder="Nome do signatário"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+          />
 
           {/* Signature Area */}
           {mode === 'draw' ? (

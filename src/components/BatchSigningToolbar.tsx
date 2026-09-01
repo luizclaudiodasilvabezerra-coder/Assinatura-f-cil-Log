@@ -69,7 +69,7 @@ export function BatchSigningToolbar({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-bold text-white truncate">{signer.name}</div>
-            <div className="text-[10px] text-slate-500 truncate">{signer.role} • {signer.cpf}</div>
+            <div className="text-[10px] text-slate-500 truncate">{signer.role}</div>
           </div>
           {signer.status === 'signed' && (
             <div className="px-2 py-1 bg-emerald-500/15 text-emerald-400 rounded-lg text-[10px] font-bold flex items-center gap-1">
@@ -135,7 +135,6 @@ export function BatchSigningToolbar({
           { key: 'autoRubricAllPages' as const, label: 'Rubricar todas as páginas' },
           { key: 'autoSignLastPage' as const, label: 'Assinar última página' },
           { key: 'includeTimestamp' as const, label: 'Incluir carimbo de data/hora' },
-          { key: 'includeCpf' as const, label: 'Incluir CPF na assinatura' },
           { key: 'includeAuditCertificate' as const, label: 'Certificado de auditoria' },
           { key: 'requireSelfieBiometrics' as const, label: 'Exigir biometria facial' },
           { key: 'requireGeolocation' as const, label: 'Exigir geolocalização' },

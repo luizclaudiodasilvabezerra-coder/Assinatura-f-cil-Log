@@ -286,7 +286,7 @@ export function ShareExportModal({
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
             <div className="text-[10px] text-slate-500 mb-1">Assinado por</div>
             <div className="text-xs font-bold text-white">{activeSigner.name}</div>
-            <div className="text-[10px] text-slate-500">{activeSigner.email} • {activeSigner.cpf}</div>
+            <div className="text-[10px] text-slate-500">{activeSigner.email}</div>
             {activeSigner.signedAt && (
               <div className="text-[10px] text-slate-500 mt-1">Data: {activeSigner.signedAt}</div>
             )}
