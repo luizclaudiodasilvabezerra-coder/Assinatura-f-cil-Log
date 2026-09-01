@@ -572,8 +572,10 @@ export default function App() {
       ...prev.filter((e) => e.id !== currentEnvelopeId),
     ]);
 
-    // Automatically open Share / Return Modal
-    setIsShareExportModalOpen(true);
+    // After signing, go to Envelopes view (leave the Sign entity)
+    setActiveView('tracking');
+    setSaveToastMessage(`Assinatura concluída! Envelope disponível em "Envelopes".`);
+    setTimeout(() => setSaveToastMessage(null), 5000);
   };
 
   const handleBiometricsConfirmed = (data: {
