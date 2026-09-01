@@ -8,6 +8,7 @@ interface BatchUploadSectionProps {
   onRemoveFile: (fileId: string) => void;
   signers: Signer[];
   onUpdateSigners: (signers: Signer[]) => void;
+  onRemoveSigner: (signerId: string) => void;
   onProceedToSign: () => void;
   envelopeTitle: string;
   onUpdateTitle: (title: string) => void;
@@ -21,6 +22,7 @@ export function BatchUploadSection({
   onRemoveFile,
   signers,
   onUpdateSigners,
+  onRemoveSigner,
   onProceedToSign,
   envelopeTitle,
   onUpdateTitle,
@@ -152,6 +154,17 @@ export function BatchUploadSection({
         </div>
         {signers.map((signer, idx) => (
           <div key={signer.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-500">Signatário {idx + 1}</span>
+              {signers.length > 1 && (
+                <button
+                  onClick={() => onRemoveSigner(signer.id)}
+                  className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="text"

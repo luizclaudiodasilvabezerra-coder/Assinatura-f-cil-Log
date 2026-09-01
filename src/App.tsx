@@ -88,9 +88,31 @@ export default function App() {
     },
   ]);
 
-  // Load initial sample documents on startup
+  // Load saved envelopes from localStorage or create sample data on startup
   useEffect(() => {
     async function init() {
+      const saved = localStorage.getItem('afl_envelopes');
+      if (saved) {
+        try {
+          const parsed: Envelope[] = JSON.parse(saved);
+          if (parsed.length > 0) {
+            setEnvelopesHistory(parsed);
+            const first = parsed[0];
+            setCurrentEnvelopeId(first.id);
+            setEnvelopeTitle(first.title);
+            setFiles(first.files);
+            setShareCode(first.shareCode);
+            setSha256Hash(first.sha256Hash);
+            if (first.signers && first.signers.length > 0) {
+              setSigners(first.signers);
+            }
+            return;
+          }
+        } catch {
+          // fall through to sample data
+        }
+      }
+
       const sampleFiles = await createSampleDocumentBundle();
       setFiles(sampleFiles);
 
@@ -130,6 +152,15 @@ export default function App() {
     init();
   }, []);
 
+  // Persist envelopes history to localStorage whenever it changes
+  useEffect(() => {
+    if (envelopesHistory.length > 0) {
+      localStorage.setItem('afl_envelopes', JSON.stringify(envelopesHistory));
+    } else {
+      localStorage.removeItem('afl_envelopes');
+    }
+  }, [envelopesHistory]);
+
   const activeSigner = signers[activeSignerIndex] || signers[0];
   const currentFile = files[activeFileIndex] || files[0];
 
@@ -140,6 +171,23 @@ export default function App() {
     0
   );
   const isFullySigned = totalSignedPages >= totalPages && totalPages > 0;
+
+  // Remove a signer from the list
+  const handleRemoveSigner = (signerId: string) => {
+    const updated = signers.filter((s) => s.id !== signerId);
+    setSigners(updated);
+    if (activeSignerIndex >= updated.length) {
+      setActiveSignerIndex(Math.max(0, updated.length - 1));
+    }
+    // Sync with current envelope in history
+    setEnvelopesHistory((prev) =>
+      prev.map((env) =>
+        env.id === currentEnvelopeId
+          ? { ...env, signers: updated, updatedAt: new Date().toLocaleString('pt-BR') }
+          : env
+      )
+    );
+  };
 
   // Add uploaded files & optionally trigger Save Envelope modal
   const handleAddFiles = async (newFiles: DocumentFile[], shouldOpenSaveModal = false) => {
@@ -604,6 +652,7 @@ export default function App() {
               onRemoveFile={handleRemoveFile}
               signers={signers}
               onUpdateSigners={setSigners}
+              onRemoveSigner={handleRemoveSigner}
               onProceedToSign={() => {
                 // Ensure current envelope is saved in history before opening recipient modal
                 const env = getCurrentEnvelope();
