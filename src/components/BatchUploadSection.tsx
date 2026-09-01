@@ -35,16 +35,25 @@ export function BatchUploadSection({
     const selected = e.target.files;
     if (!selected || selected.length === 0) return;
 
-    const newFiles: DocumentFile[] = Array.from(selected).map((f, idx) => ({
-      id: `doc-${Date.now()}-${idx}`,
-      name: f.name,
-      pageCount: Math.max(1, Math.ceil(f.size / 50000)),
-      status: 'pending' as const,
-      pages: Array.from({ length: Math.max(1, Math.ceil(f.size / 50000)) }, (_, i) => ({
-        pageNumber: i + 1,
-        stamps: [],
-      })),
-    }));
+    const newFiles: DocumentFile[] = await Promise.all(
+      Array.from(selected).map((f, idx) =>
+        new Promise<DocumentFile>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve({
+              id: `doc-${Date.now()}-${idx}`,
+              name: f.name,
+              pageCount: 1,
+              status: 'pending' as const,
+              fileDataUrl: reader.result as string,
+              fileType: f.type,
+              pages: [{ pageNumber: 1, stamps: [] }],
+            });
+          };
+          reader.readAsDataURL(f);
+        })
+      )
+    );
 
     onAddFiles(newFiles, true);
     if (fileInputRef.current) fileInputRef.current.value = '';

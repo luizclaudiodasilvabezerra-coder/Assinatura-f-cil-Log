@@ -120,48 +120,70 @@ export function DocumentViewer({
             signingMode === 'individual' ? 'cursor-crosshair' : 'cursor-default'
           }`}
         >
-          {/* Document content */}
-          <div className="absolute inset-0 p-6 overflow-hidden">
-            <div className="text-center mb-3">
-              <div className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">{currentFile.name.replace(/\.(pdf|docx?|jpe?g|png)$/i, '')}</div>
-              <div className="w-16 h-0.5 bg-slate-300 mx-auto mt-1"></div>
-            </div>
-            <div className="space-y-1.5 text-[8px] text-slate-700 leading-relaxed">
-              {currentPage?.pageNumber === 1 ? (
-                <>
-                  <p className="font-bold text-center text-[9px] mb-2">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</p>
-                  <p>Pelo presente instrumento particular, as partes abaixo qualificadas celebram o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições a seguir:</p>
-                  <p className="font-bold mt-1.5">CLÁUSULA 1ª — DO OBJETO</p>
-                  <p>O CONTRATADO compromete-se a prestar os serviços descritos neste contrato, conforme as especificações técnicas e prazos estabelecidos, garantindo a qualidade e conformidade exigida.</p>
-                  <p className="font-bold mt-1.5">CLÁUSULA 2ª — DAS OBRIGAÇÕES</p>
-                  <p>2.1. O CONTRATADO obriga-se a executar os serviços com zelo, dedicação e técnica profissional.</p>
-                  <p>2.2. O CONTRATANTE obriga-se a efetuar o pagamento conforme condições estabelecidas.</p>
-                  <p className="font-bold mt-1.5">CLÁUSULA 3ª — DO VALOR E PAGAMENTO</p>
-                  <p>3.1. Os serviços serão remunerados conforme tabela de valores anexa a este contrato.</p>
-                  <p>3.2. O pagamento será efetuado mediante boleto bancário ou transferência.</p>
-                  <p className="font-bold mt-1.5">CLÁUSULA 4ª — DO PRAZO</p>
-                  <p>4.1. O prazo para execução dos serviços será de conforme cronograma estabelecido.</p>
-                </>
-              ) : (
-                <>
-                  <p className="font-bold mt-1.5">CLÁUSULA 5ª — DA RESCISÃO</p>
-                  <p>5.1. O presente contrato poderá ser rescindido por qualquer das partes, mediante aviso prévio de 30 dias.</p>
-                  <p>5.2. O descumprimento de qualquer cláusula contratual autoriza a rescisão imediata.</p>
-                  <p className="font-bold mt-1.5">CLÁUSULA 6ª — DA CONFIDENCIALIDADE</p>
-                  <p>6.1. As partes comprometem-se a manter sigilo sobre todas as informações.</p>
-                  <p className="font-bold mt-1.5">CLÁUSULA 7ª — DO FORO</p>
-                  <p>7.1. Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias.</p>
-                  <p className="mt-2">E, por estarem de acordo, assinam o presente instrumento em 02 (duas) vias de igual teor e forma.</p>
-                </>
-              )}
-            </div>
-            {/* Signature line */}
-            <div className="absolute bottom-12 left-6 right-6">
-              <div className="border-t border-slate-400 pt-0.5">
-                <div className="text-[7px] text-slate-500 font-mono">Assinatura do Responsável</div>
+          {/* Document content — original file or fallback text */}
+          {currentFile.fileDataUrl ? (
+            currentFile.fileType?.startsWith('image/') ? (
+              <img
+                src={currentFile.fileDataUrl}
+                alt={currentFile.name}
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            ) : currentFile.fileType === 'application/pdf' ? (
+              <embed
+                src={currentFile.fileDataUrl}
+                type="application/pdf"
+                className="absolute inset-0 w-full h-full"
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                <FileText className="w-10 h-10 text-slate-400 mb-3" />
+                <div className="text-[10px] font-bold text-slate-700">{currentFile.name}</div>
+                <div className="text-[8px] text-slate-500 mt-1">Formato: {currentFile.fileType || 'desconhecido'}</div>
+              </div>
+            )
+          ) : (
+            <div className="absolute inset-0 p-6 overflow-hidden">
+              <div className="text-center mb-3">
+                <div className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">{currentFile.name.replace(/\.(pdf|docx?|jpe?g|png)$/i, '')}</div>
+                <div className="w-16 h-0.5 bg-slate-300 mx-auto mt-1"></div>
+              </div>
+              <div className="space-y-1.5 text-[8px] text-slate-700 leading-relaxed">
+                {currentPage?.pageNumber === 1 ? (
+                  <>
+                    <p className="font-bold text-center text-[9px] mb-2">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</p>
+                    <p>Pelo presente instrumento particular, as partes abaixo qualificadas celebram o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições a seguir:</p>
+                    <p className="font-bold mt-1.5">CLÁUSULA 1ª — DO OBJETO</p>
+                    <p>O CONTRATADO compromete-se a prestar os serviços descritos neste contrato, conforme as especificações técnicas e prazos estabelecidos, garantindo a qualidade e conformidade exigida.</p>
+                    <p className="font-bold mt-1.5">CLÁUSULA 2ª — DAS OBRIGAÇÕES</p>
+                    <p>2.1. O CONTRATADO obriga-se a executar os serviços com zelo, dedicação e técnica profissional.</p>
+                    <p>2.2. O CONTRATANTE obriga-se a efetuar o pagamento conforme condições estabelecidas.</p>
+                    <p className="font-bold mt-1.5">CLÁUSULA 3ª — DO VALOR E PAGAMENTO</p>
+                    <p>3.1. Os serviços serão remunerados conforme tabela de valores anexa a este contrato.</p>
+                    <p>3.2. O pagamento será efetuado mediante boleto bancário ou transferência.</p>
+                    <p className="font-bold mt-1.5">CLÁUSULA 4ª — DO PRAZO</p>
+                    <p>4.1. O prazo para execução dos serviços será de conforme cronograma estabelecido.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-bold mt-1.5">CLÁUSULA 5ª — DA RESCISÃO</p>
+                    <p>5.1. O presente contrato poderá ser rescindido por qualquer das partes, mediante aviso prévio de 30 dias.</p>
+                    <p>5.2. O descumprimento de qualquer cláusula contratual autoriza a rescisão imediata.</p>
+                    <p className="font-bold mt-1.5">CLÁUSULA 6ª — DA CONFIDENCIALIDADE</p>
+                    <p>6.1. As partes comprometem-se a manter sigilo sobre todas as informações.</p>
+                    <p className="font-bold mt-1.5">CLÁUSULA 7ª — DO FORO</p>
+                    <p>7.1. Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias.</p>
+                    <p className="mt-2">E, por estarem de acordo, assinam o presente instrumento em 02 (duas) vias de igual teor e forma.</p>
+                  </>
+                )}
+              </div>
+              {/* Signature line */}
+              <div className="absolute bottom-12 left-6 right-6">
+                <div className="border-t border-slate-400 pt-0.5">
+                  <div className="text-[7px] text-slate-500 font-mono">Assinatura do Responsável</div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Render Stamps */}
           {currentPage?.stamps.map((stamp) => (

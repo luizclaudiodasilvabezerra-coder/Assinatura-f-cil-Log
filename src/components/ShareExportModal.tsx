@@ -54,6 +54,23 @@ export function ShareExportModal({
   };
 
   const handleDownloadSignedPDF = () => {
+    // If there's a single file with original content, download it directly
+    const filesWithData = envelope.files.filter((f) => f.fileDataUrl);
+    if (filesWithData.length === 1 && filesWithData[0].fileType === 'application/pdf') {
+      const a = document.createElement('a');
+      a.href = filesWithData[0].fileDataUrl!;
+      a.download = filesWithData[0].name;
+      a.click();
+      return;
+    }
+    if (filesWithData.length === 1 && filesWithData[0].fileType?.startsWith('image/')) {
+      const a = document.createElement('a');
+      a.href = filesWithData[0].fileDataUrl!;
+      a.download = filesWithData[0].name;
+      a.click();
+      return;
+    }
+
     // Generate an HTML document with signed content and trigger download
     const signedDocsHtml = envelope.files.map((file) => {
       const stamps = file.pages.flatMap((p) => p.stamps);
@@ -65,9 +82,16 @@ export function ShareExportModal({
         `</div>`
       ).join('');
 
+      const contentHtml = file.fileDataUrl && file.fileType?.startsWith('image/')
+        ? `<img src="${file.fileDataUrl}" style="max-width:100%;border-radius:4px;margin:10px 0;" />`
+        : file.fileDataUrl && file.fileType === 'application/pdf'
+        ? `<embed src="${file.fileDataUrl}" type="application/pdf" style="width:100%;height:400px;" />`
+        : '';
+
       return `<div style="margin-bottom:30px;padding:20px;border:1px solid #ddd;border-radius:8px;">
         <h3 style="margin:0 0 10px;color:#0f3796;">${file.name}</h3>
         <p style="color:#666;font-size:12px;">${file.pageCount} página(s) — ${file.status === 'signed' ? '✓ Assinado' : 'Pendente'}</p>
+        ${contentHtml}
         ${stampsHtml || '<p style="color:#999;font-size:12px;">Sem assinaturas registradas.</p>'}
       </div>`;
     }).join('');

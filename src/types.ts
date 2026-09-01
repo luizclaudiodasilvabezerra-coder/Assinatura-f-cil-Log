@@ -36,6 +36,8 @@ export interface DocumentFile {
   pages: DocumentPage[];
   status: FileStatus;
   thumbnailUrl?: string;
+  fileDataUrl?: string;
+  fileType?: string;
 }
 
 export interface Signer {
