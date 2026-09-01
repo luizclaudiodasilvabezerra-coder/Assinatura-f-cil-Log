@@ -9,6 +9,7 @@ interface EnvelopeTrackingViewProps {
   onOpenShareModal: (envelope: Envelope) => void;
   onOpenAuditModal: (envelope: Envelope) => void;
   onDeleteEnvelope: (envelopeId: string) => void;
+  onSendForSigning: (envelope: Envelope) => void;
 }
 
 export function EnvelopeTrackingView({
@@ -18,6 +19,7 @@ export function EnvelopeTrackingView({
   onOpenShareModal,
   onOpenAuditModal,
   onDeleteEnvelope,
+  onSendForSigning,
 }: EnvelopeTrackingViewProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -136,7 +138,7 @@ export function EnvelopeTrackingView({
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => onSelectEnvelope(env)}
                     className="px-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition"
@@ -145,18 +147,25 @@ export function EnvelopeTrackingView({
                     Abrir
                   </button>
                   <button
-                    onClick={() => onOpenShareModal(env)}
-                    className="px-2 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition"
-                  >
-                    <Send className="w-3 h-3" />
-                    Enviar
-                  </button>
-                  <button
                     onClick={() => onOpenAuditModal(env)}
                     className="px-2 py-2 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition"
                   >
                     <Award className="w-3 h-3" />
                     Auditoria
+                  </button>
+                  <button
+                    onClick={() => onSendForSigning(env)}
+                    className="px-2 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition"
+                  >
+                    <Send className="w-3 h-3" />
+                    Enviar p/ Assinatura
+                  </button>
+                  <button
+                    onClick={() => onOpenShareModal(env)}
+                    className="px-2 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition"
+                  >
+                    <Link2 className="w-3 h-3" />
+                    Compartilhar
                   </button>
                 </div>
               </div>

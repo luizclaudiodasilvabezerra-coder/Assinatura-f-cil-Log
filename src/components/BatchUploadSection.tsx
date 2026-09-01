@@ -10,6 +10,7 @@ interface BatchUploadSectionProps {
   onUpdateSigners: (signers: Signer[]) => void;
   onRemoveSigner: (signerId: string) => void;
   onProceedToSign: () => void;
+  onSendForSigning: () => void;
   envelopeTitle: string;
   onUpdateTitle: (title: string) => void;
   onOpenSaveEnvelopeModal: () => void;
@@ -24,6 +25,7 @@ export function BatchUploadSection({
   onUpdateSigners,
   onRemoveSigner,
   onProceedToSign,
+  onSendForSigning,
   envelopeTitle,
   onUpdateTitle,
   onOpenSaveEnvelopeModal,
@@ -226,7 +228,7 @@ export function BatchUploadSection({
           Salvar Envelope
         </button>
         <button
-          onClick={onProceedToSign}
+          onClick={onSendForSigning}
           disabled={files.length === 0}
           className="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-500/20"
         >

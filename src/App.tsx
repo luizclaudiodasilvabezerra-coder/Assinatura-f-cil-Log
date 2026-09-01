@@ -8,6 +8,7 @@ import { BatchSigningToolbar } from './components/BatchSigningToolbar';
 import { SignaturePadModal } from './components/SignaturePadModal';
 import { BiometricVerificationModal } from './components/BiometricVerificationModal';
 import { ShareExportModal } from './components/ShareExportModal';
+import { SendLinkConfirmModal } from './components/SendLinkConfirmModal';
 import { SendToRecipientModal } from './components/SendToRecipientModal';
 import { SaveEnvelopeModal } from './components/SaveEnvelopeModal';
 import { AuditCertificateModal } from './components/AuditCertificateModal';
@@ -68,6 +69,8 @@ export default function App() {
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [isBiometricsModalOpen, setIsBiometricsModalOpen] = useState(false);
   const [isShareExportModalOpen, setIsShareExportModalOpen] = useState(false);
+  const [isSendLinkModalOpen, setIsSendLinkModalOpen] = useState(false);
+  const [sendLinkEnvelope, setSendLinkEnvelope] = useState<Envelope | null>(null);
   const [isSendRecipientModalOpen, setIsSendRecipientModalOpen] = useState(false);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [auditModalEnvelope, setAuditModalEnvelope] = useState<Envelope | null>(null);
@@ -605,6 +608,39 @@ export default function App() {
     setAuditLogs((prev) => [...prev, log]);
   };
 
+  // Open send-link confirmation modal from upload view
+  const handleRequestSendLink = () => {
+    const env = getCurrentEnvelope();
+    setEnvelopesHistory((prev) => {
+      const exists = prev.some((e) => e.id === env.id);
+      if (exists) {
+        return prev.map((e) => (e.id === env.id ? { ...e, ...env, status: 'sent' as const } : e));
+      }
+      return [{ ...env, status: 'sent' as const }, ...prev];
+    });
+    setIsEnvelopeSaved(true);
+    setSendLinkEnvelope(env);
+    setIsSendLinkModalOpen(true);
+  };
+
+  // Decline send link → follow current flow (go to sign view)
+  const handleDeclineSendLink = () => {
+    setIsSendLinkModalOpen(false);
+    setSendLinkEnvelope(null);
+    // Follow the current flow: go to sign view
+    const signingLink = `https://assinatura.logmam.com.br/sign/${shareCode}`;
+    setSaveToastMessage(`Envelope preparado para assinatura! Link mobile: ${signingLink}`);
+    setTimeout(() => setSaveToastMessage(null), 6000);
+    setActiveView('sign');
+  };
+
+  // Open send-link confirmation from envelope tracking view
+  const handleSendEnvelopeForSigning = (env: Envelope) => {
+    handleSelectEnvelope(env.id);
+    setSendLinkEnvelope(env);
+    setIsSendLinkModalOpen(true);
+  };
+
   const getCurrentEnvelope = (): Envelope => {
     return {
       id: currentEnvelopeId,
@@ -661,24 +697,8 @@ export default function App() {
               signers={signers}
               onUpdateSigners={setSigners}
               onRemoveSigner={handleRemoveSigner}
-              onProceedToSign={() => {
-                // Save envelope to history and prepare for signing — no modal
-                const env = getCurrentEnvelope();
-                setEnvelopesHistory((prev) => {
-                  const exists = prev.some((e) => e.id === env.id);
-                  if (exists) {
-                    return prev.map((e) => (e.id === env.id ? { ...e, ...env, status: 'sent' as const } : e));
-                  }
-                  return [{ ...env, status: 'sent' as const }, ...prev];
-                });
-                setIsEnvelopeSaved(true);
-                // Generate mobile signing link and show toast
-                const signingLink = `https://assinatura.logmam.com.br/sign/${shareCode}`;
-                setSaveToastMessage(`Envelope preparado para assinatura! Link mobile: ${signingLink}`);
-                setTimeout(() => setSaveToastMessage(null), 6000);
-                // Go directly to the signing view
-                setActiveView('sign');
-              }}
+              onProceedToSign={() => {}}
+              onSendForSigning={handleRequestSendLink}
               envelopeTitle={envelopeTitle}
               onUpdateTitle={setEnvelopeTitle}
               onOpenSaveEnvelopeModal={() => setIsSaveEnvelopeModalOpen(true)}
@@ -863,6 +883,7 @@ export default function App() {
                 setIsAuditModalOpen(true);
               }}
               onDeleteEnvelope={handleDeleteEnvelope}
+              onSendForSigning={handleSendEnvelopeForSigning}
             />
           )}
         </div>
@@ -916,6 +937,18 @@ export default function App() {
         envelope={getCurrentEnvelope()}
         activeSigner={activeSigner}
         settings={settings}
+      />
+
+      {/* MODAL 4b: Send Link Confirmation (WhatsApp / Email) */}
+      <SendLinkConfirmModal
+        isOpen={isSendLinkModalOpen}
+        onClose={() => {
+          setIsSendLinkModalOpen(false);
+          setSendLinkEnvelope(null);
+        }}
+        envelope={sendLinkEnvelope || getCurrentEnvelope()}
+        signers={signers}
+        onDecline={handleDeclineSendLink}
       />
 
       {/* MODAL 5: Legal Audit Trail & Authenticity Certificate */}
