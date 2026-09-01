@@ -91,13 +91,17 @@ export function EnvelopeTrackingView({
                       <span className="text-[10px] text-slate-500 font-mono">{env.shareCode}</span>
                     </div>
 
-                    {/* Mobile signing link for sent envelopes */}
+                    {/* Mobile signing link for sent envelopes — click to open for signing */}
                     {env.status === 'sent' && !isSigned && (
                       <div className="mt-2 flex items-center gap-2 bg-slate-950 border border-sky-500/20 rounded-lg p-2">
                         <Link2 className="w-3 h-3 text-sky-400 shrink-0" />
-                        <span className="text-[10px] text-slate-400 font-mono truncate flex-1">
+                        <button
+                          onClick={() => onSelectEnvelope(env)}
+                          className="text-[10px] text-sky-400 hover:text-sky-300 font-mono truncate flex-1 text-left transition underline-offset-2 hover:underline"
+                          title="Abrir envelope para assinatura"
+                        >
                           {window.location.host}/sign/{env.shareCode}
-                        </span>
+                        </button>
                         <button
                           onClick={() => handleCopyLink(env)}
                           className="p-1 text-slate-400 hover:text-sky-400 rounded transition shrink-0"
