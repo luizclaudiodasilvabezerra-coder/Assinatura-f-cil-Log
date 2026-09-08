@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Container queries for mobile simulator — stack grids when container is narrow */
+.cq-container {
+  container-type: inline-size;
+}
+
+@container (max-width: 500px) {
+  .cq-stack-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .cq-stack-col {
+    grid-column: auto !important;
+  }
+  .cq-viewer-height {
+    height: 50vh !important;
+    min-height: 300px !important;
+  }
+}
